@@ -17,13 +17,18 @@ import { getTrainingConfig, setTrainingConfig } from './services/trainingConfig.
 // لا Canvas · لا Scene · لا Pointer Lock · لا سيناريو · لا إنذار
 export function renderHome(el) {
   el.innerHTML = `
-  <div class="page home" style="position: relative;">
-    <img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/23/Ministry_of_Education_Saudi_Arabia.svg/512px-Ministry_of_Education_Saudi_Arabia.svg.png" 
-         alt="وزارة التعليم" 
-         style="position: absolute; top: 20px; right: 20px; height: 80px; width: auto; z-index: 10;" />
-         
+  <div class="page home">
     <div class="hero card" style="margin-top: 50px;">
-      <div class="logo">🛡️</div>
+      
+      <!-- حاوية علوية لترتيب الشعارات بنفس المستوى -->
+      <div style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 20px; width: 100%;">
+        <!-- شعار الوزارة على اليمين -->
+        <img src="/logo.png" alt="وزارة التعليم" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 60px; width: auto; object-fit: contain;" />
+        
+        <!-- أيقونة المنصة في المنتصف -->
+        <div class="logo" style="margin: 0;">🛡️</div>
+      </div>
+      
       <h1>SafeSense VR</h1>
       <p class="subtitle">منصة تدريب افتراضي تكيفي للسلامة والإخلاء</p>
       <div class="home-actions">
