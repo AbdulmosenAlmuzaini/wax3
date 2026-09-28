@@ -43,12 +43,12 @@ export function renderHome(el) {
       </div>
       
       <!-- معلومات المشروع المطلوبة -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 35px; padding-top: 25px; border-top: 1px solid #eee; gap: 15px; flex-wrap: wrap; background: #fafafa; padding: 20px; border-radius: 8px;">
-        <div style="text-align: right; flex: 1; min-width: 150px;">
+      <div style="display: flex; justify-content: center; align-items: center; margin-top: 35px; padding-top: 25px; border-top: 1px solid #eee; gap: 100px; flex-wrap: wrap; background: #fafafa; padding: 20px; border-radius: 8px;">
+        <div style="text-align: center; min-width: 150px;">
           <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">اسم المشروع</h4>
           <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">SafeSense VR</p>
         </div>
-        <div style="text-align: left; flex: 1; min-width: 150px;">
+        <div style="text-align: center; min-width: 150px;">
           <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">مطورة المشروع</h4>
           <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">ميان طارق القثامي</p>
         </div>
