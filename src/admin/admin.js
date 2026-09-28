@@ -4,7 +4,7 @@
 import { APP_CONFIG, LEVEL_LABELS, userTypeLabel } from '../config/appConfig.js'
 import { SCENARIOS } from '../scenarios.js'
 import {
-  getSessions, getSessionById, getStudents, getStudentSessions,
+  getSessions, getRemoteSessions, getSessionById, getStudents, getStudentSessions,
   getSummaryStats, isAdminLoggedIn, setAdminLoggedIn,
 } from '../services/storage.js'
 import { formatTime } from '../sessionTracker.js'
@@ -46,7 +46,7 @@ export function renderAdminLogin(el) {
   }
 }
 
-export function renderDashboard(el, state) {
+export async function renderDashboard(el, state) {
   if (!isAdminLoggedIn()) { renderAdminLogin(el); return }
   const tab = state.adminTab || 'overview'
   el.innerHTML = `
@@ -61,21 +61,40 @@ export function renderDashboard(el, state) {
         <button data-tab="sessions" class="${tab === 'sessions' ? 'active' : ''}">آخر التدريبات</button>
         <button data-tab="students" class="${tab === 'students' ? 'active' : ''}">المتدربات</button>
       </div>
-      <div id="tabBody"></div>
+      <div id="tabBody"><div style="text-align:center; padding: 20px;">⏳ جاري جلب البيانات من الخادم...</div></div>
     </div>
   </div>`
   el.querySelector('#btnLogout').onclick = () => { setAdminLoggedIn(false); location.hash = '#/' }
   el.querySelectorAll('[data-tab]').forEach((b) => {
     b.onclick = () => { state.adminTab = b.dataset.tab; renderDashboard(el, state) }
   })
+  
   const body = el.querySelector('#tabBody')
-  if (tab === 'overview') renderOverview(body)
-  else if (tab === 'sessions') renderSessions(body, state)
-  else renderStudents(body, state)
+  const remoteSessions = await getRemoteSessions()
+  
+  if (tab === 'overview') renderOverview(body, remoteSessions)
+  else if (tab === 'sessions') renderSessions(body, state, remoteSessions)
+  else renderStudents(body, state, remoteSessions)
 }
 
-function renderOverview(body) {
-  const s = getSummaryStats()
+function renderOverview(body, sessions) {
+  const students = getStudents()
+  const total = sessions.length
+  const reached = sessions.filter((s) => s.reachedAssembly).length
+  const avgTime = total
+    ? sessions.reduce((a, s) => a + (Number(s.evacTimeSec) || 0), 0) / total
+    : 0
+  const avgErrors = total
+    ? sessions.reduce((a, s) => a + (Number(s.errors) || 0), 0) / total
+    : 0
+  const s = {
+    totalSessions: total,
+    totalStudents: students.length,
+    avgEvacTime: Math.round(avgTime * 10) / 10,
+    avgErrors: Math.round(avgErrors * 100) / 100,
+    reachRate: total ? Math.round((reached / total) * 100) : 0,
+  }
+
   body.innerHTML = `
     <h3>ملخص عام</h3>
     <div class="stat-grid">
@@ -85,11 +104,10 @@ function renderOverview(body) {
       <div class="stat"><b>${s.avgErrors}</b><small>متوسط الأخطاء</small></div>
       <div class="stat"><b>${s.reachRate}%</b><small>نسبة الوصول للتجمع</small></div>
     </div>
-    <p class="hint">تُحسب الإحصاءات من LocalStorage محليًا في هذه النسخة.</p>`
+    <p class="hint">يتم جلب سجلات التدريب من قاعدة البيانات المركزية.</p>`
 }
 
-function renderSessions(body, state) {
-  const all = getSessions()
+function renderSessions(body, state, all) {
   const f = state.filters || {}
   const filtered = all.filter((s) =>
     (!f.userType || s.userType === f.userType) &&
@@ -131,13 +149,13 @@ function renderSessions(body, state) {
   }
   set('#fUser', 'userType'); set('#fScen', 'scenarioId'); set('#fLvl', 'nextLevel'); set('#fRes', 'result')
   body.querySelectorAll('tr[data-id]').forEach((tr) => {
-    tr.onclick = () => renderSessionDetail(body.querySelector('#detail'), tr.dataset.id)
+    tr.onclick = () => renderSessionDetail(body.querySelector('#detail'), tr.dataset.id, all)
   })
-  if (state.openSession) renderSessionDetail(body.querySelector('#detail'), state.openSession)
+  if (state.openSession) renderSessionDetail(body.querySelector('#detail'), state.openSession, all)
 }
 
-function renderSessionDetail(box, id) {
-  const s = getSessionById(id)
+function renderSessionDetail(box, id, allSessions) {
+  const s = allSessions.find(x => x.sessionId === id)
   if (!s) { box.innerHTML = '<p class="err">السجل غير موجود</p>'; return }
   box.innerHTML = `
     <div class="detail-box">
@@ -154,7 +172,7 @@ function renderSessionDetail(box, id) {
   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 }
 
-function renderStudents(body, state) {
+function renderStudents(body, state, allSessions) {
   const students = getStudents()
   const sel = state.studentSel || students[0]?.name
   body.innerHTML = `
@@ -164,13 +182,13 @@ function renderStudents(body, state) {
     <div id="stuDetail"></div>`}`
   const selEl = body.querySelector('#selStu')
   if (selEl) {
-    selEl.onchange = () => { state.studentSel = selEl.value; renderStudents(body, state) }
-    renderStudentDetail(body.querySelector('#stuDetail'), selEl.value)
+    selEl.onchange = () => { state.studentSel = selEl.value; renderStudents(body, state, allSessions) }
+    renderStudentDetail(body.querySelector('#stuDetail'), selEl.value, allSessions)
   }
 }
 
-function renderStudentDetail(box, name) {
-  const sessions = getStudentSessions(name)
+function renderStudentDetail(box, name, allSessions) {
+  const sessions = allSessions.filter((s) => s.studentName === name)
   if (!sessions.length) { box.innerHTML = '<p class="hint">لا تدريبات لهذه المتدربة.</p>'; return }
   box.innerHTML = `
     <div class="detail-box">

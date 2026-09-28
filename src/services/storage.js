@@ -13,6 +13,8 @@ const KEYS = {
   adminSession: 'safesense_admin_v1',
 }
 
+import { APP_CONFIG } from '../config/appConfig.js'
+
 function readJSON(key, fallback) {
   try {
     const raw = localStorage.getItem(key)
@@ -36,11 +38,13 @@ function uid(prefix = 'id') {
 }
 
 // ---------- Sessions ----------
-export function saveSession(session) {
+export async function saveSession(session) {
   const all = readJSON(KEYS.sessions, [])
   const record = { ...session }
   if (!record.sessionId) record.sessionId = uid('ses')
   if (!record.createdAt) record.createdAt = new Date().toISOString()
+  record.synced = false
+  
   const idx = all.findIndex((s) => s.sessionId === record.sessionId)
   if (idx >= 0) all[idx] = record
   else all.push(record)
@@ -50,12 +54,54 @@ export function saveSession(session) {
   if (record.studentName) {
     upsertStudentFromSession(record)
   }
-  return record
+  
+  // محاولة الإرسال لقاعدة البيانات
+  try {
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    })
+    if (res.ok) {
+      const updatedAll = readJSON(KEYS.sessions, [])
+      const uIdx = updatedAll.findIndex((s) => s.sessionId === record.sessionId)
+      if (uIdx >= 0) {
+        updatedAll[uIdx].synced = true
+        writeJSON(KEYS.sessions, updatedAll)
+      }
+      return true
+    }
+    return false
+  } catch (err) {
+    console.warn('Failed to sync session with server, keeping local copy', err)
+    return false
+  }
 }
 
 export function getSessions() {
   const all = readJSON(KEYS.sessions, [])
   return [...all].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+}
+
+export async function getRemoteSessions() {
+  const adminPass = APP_CONFIG.admin.password
+  try {
+    const res = await fetch('/api/sessions', {
+      headers: { 'Authorization': `Bearer ${adminPass}` }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      // Merge with local unsynced
+      const local = readJSON(KEYS.sessions, []).filter(s => !s.synced)
+      const remoteIds = new Set(data.map(d => d.sessionId))
+      const combined = [...data, ...local.filter(l => !remoteIds.has(l.sessionId))]
+      combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      return combined
+    }
+  } catch (e) {
+    console.warn('Failed to fetch remote sessions, falling back to local', e)
+  }
+  return getSessions()
 }
 
 export function getSessionById(sessionId) {

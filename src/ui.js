@@ -112,6 +112,10 @@ export function renderSetup(el, state) {
   if (adaptBox) adaptBox.innerHTML = adaptPreview(state.userType || 'general')
   el.querySelector('#btnStart').onclick = () => {
     const err = el.querySelector('#setupErr')
+    if (!state.studentName || state.studentName.trim() === '') {
+      if (err) err.textContent = 'يرجى إدخال اسم المتدرب/المتدربة أولاً.'
+      return
+    }
     if (!state.userType) {
       if (err) err.textContent = 'اختر نوع المستخدم أولًا.'
       return
@@ -559,8 +563,16 @@ function initSimulation3D(el, state, scenario, userType, startLevel) {
     const partial = tracker.toResult()
     const nextLevel = calculateNextLevel(partial)
     const result = tracker.toResult(nextLevel)
-    saveSession(result)
     showReport(result, scenario, failReason)
+    
+    // حفظ في قاعدة البيانات (Vercel) بشكل غير متزامن
+    saveSession(result).then((savedOk) => {
+      const msg = document.getElementById('repSaveMsg')
+      if (msg) {
+        msg.innerHTML = savedOk ? '<span style="color:#2e7d32">✅ تم حفظ النتيجة في قاعدة البيانات بنجاح</span>' 
+                                : '<span style="color:#c62828">⚠️ تعذر الاتصال بالخادم، حُفظت النتيجة محلياً وسيعاد إرسالها لاحقاً</span>'
+      }
+    })
   }
 
   function showReport(r, scen, failReason = null) {
@@ -572,6 +584,7 @@ function initSimulation3D(el, state, scenario, userType, startLevel) {
       <div class="report card">
         <h2>📋 نتيجة التدريب</h2>
         ${failMessage}
+        <div id="repSaveMsg" style="margin-bottom: 15px; font-weight: bold; text-align: center;">⏳ جاري حفظ النتيجة في الخادم...</div>
         <div class="rep-grid">
           <div><small>زمن الإخلاء</small><b>${formatTime(r.evacTimeSec)}</b></div>
           <div><small>الأخطاء</small><b>${r.errors}</b></div>
