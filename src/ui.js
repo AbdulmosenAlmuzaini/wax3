@@ -21,12 +21,12 @@ export function renderHome(el) {
     <div class="hero card" style="margin-top: 50px;">
       
       <!-- حاوية علوية لترتيب الشعارات بنفس المستوى -->
-      <div style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 20px; width: 100%;">
+      <div style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 20px; width: 100%; min-height: 100px;">
         <!-- شعار الوزارة على اليمين -->
-        <img src="/logo.png" alt="وزارة التعليم" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 60px; width: auto; object-fit: contain;" />
+        <img src="/logo.png" alt="وزارة التعليم" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 110px; width: auto; object-fit: contain;" />
         
         <!-- أيقونة المنصة في المنتصف -->
-        <div class="logo" style="margin: 0;">🛡️</div>
+        <div class="logo" style="margin: 0; z-index: 2;">🛡️</div>
       </div>
       
       <h1>SafeSense VR</h1>
