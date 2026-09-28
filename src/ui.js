@@ -17,10 +17,14 @@ import { getTrainingConfig, setTrainingConfig } from './services/trainingConfig.
 // لا Canvas · لا Scene · لا Pointer Lock · لا سيناريو · لا إنذار
 export function renderHome(el) {
   el.innerHTML = `
-  <div class="page home">
-    <div class="hero card">
+  <div class="page home" style="position: relative;">
+    <img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/23/Ministry_of_Education_Saudi_Arabia.svg/512px-Ministry_of_Education_Saudi_Arabia.svg.png" 
+         alt="وزارة التعليم" 
+         style="position: absolute; top: 20px; right: 20px; height: 80px; width: auto; z-index: 10;" />
+         
+    <div class="hero card" style="margin-top: 50px;">
       <div class="logo">🛡️</div>
-      <h1>محاكاة إخلاء الطوارئ</h1>
+      <h1>SafeSense VR</h1>
       <p class="subtitle">منصة تدريب افتراضي تكيفي للسلامة والإخلاء</p>
       <div class="home-actions">
         <a class="btn primary big" href="#/train">بدء التدريب</a>
@@ -32,7 +36,24 @@ export function renderHome(el) {
         <div class="feat"><span>♿</span><b>شامل للجميع</b><small>5 أنواع تدريب مخصصة</small></div>
         <div class="feat"><span>📊</span><b>تقارير ومتابعة</b><small>زمن وإخلاء وأخطاء للمشرف</small></div>
       </div>
-      <p class="hint">يعمل من المتصفح مباشرة — WASD + الفأرة</p>
+      
+      <!-- معلومات المشروع المطلوبة -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 35px; padding-top: 25px; border-top: 1px solid #eee; gap: 15px; flex-wrap: wrap; background: #fafafa; padding: 20px; border-radius: 8px;">
+        <div style="text-align: right; flex: 1; min-width: 150px;">
+          <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">اسم المشروع</h4>
+          <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">SafeSense VR</p>
+        </div>
+        <div style="text-align: right; flex: 1; min-width: 150px;">
+          <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">مطورة المشروع</h4>
+          <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">ميان طارق القثامي</p>
+        </div>
+        <div style="text-align: right; flex: 1; min-width: 250px;">
+          <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">عنوان الدرس</h4>
+          <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">كيف نتصرف بأمان أثناء الطوارئ؟</p>
+        </div>
+      </div>
+
+      <p class="hint" style="margin-top: 20px;">يعمل من المتصفح مباشرة — WASD + الفأرة</p>
     </div>
   </div>`
 }
