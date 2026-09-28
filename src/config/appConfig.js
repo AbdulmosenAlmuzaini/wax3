@@ -10,7 +10,7 @@ export const APP_CONFIG = {
   appSubtitle: 'التدريب الافتراضي التكيفي للسلامة والإخلاء',
   admin: {
     username: 'admin',
-    password: '1234',
+    password: 'Abd@0562292199',
   },
   emergencyDelaySec: 5,      // بدء الطوارئ بعد N ثوانٍ من دخول المشهد
   helpAfterNoMoveSec: 10,    // إظهار المساعدة بعد N ثوانٍ بدون حركة

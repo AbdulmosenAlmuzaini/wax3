@@ -3,7 +3,7 @@ import { neon } from '@neondatabase/serverless';
 export default async function handler(req, res) {
   // حماية نقطة النهاية (Endpoint) للمشرف
   const authHeader = req.headers.authorization;
-  const adminPass = process.env.ADMIN_PASSWORD || '123456';
+  const adminPass = process.env.ADMIN_PASSWORD || 'Abd@0562292199';
   
   const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.STORAGE_URL;
   if (!dbUrl) {
