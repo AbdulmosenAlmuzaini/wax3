@@ -1,0 +1,19 @@
+{
+  "name": "safesense-vr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "SafeSense VR - التدريب الافتراضي التكيفي للسلامة والإخلاء",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "puppeteer": "^25.12.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
