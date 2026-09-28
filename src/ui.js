@@ -222,7 +222,7 @@ function initSimulation3D(el, state, scenario, userType, startLevel) {
         </div>
       </div>
     </div>
-    ${userType === 'motor' ? `<div class="speed-ctl">🚶 السرعة <input id="speedRange" type="range" min="2" max="7" step="0.5" value="3" /> <span id="speedVal">3</span></div>` : ''}
+    ${userType === 'motor' ? `<div class="speed-ctl">🚶 السرعة: <b id="speedVal">متوسط (2)</b><div style="font-size:0.8em; margin-top:4px;">⌨️ أرقام 1-5 لتغيير السرعة</div></div>` : ''}
     ${userType === 'learning' ? `<div id="stepBox" class="steps hidden"><b id="stepText"></b><button id="stepNext" class="btn small">التالي ←</button></div>` : ''}
   </div>`
 
@@ -413,8 +413,25 @@ function initSimulation3D(el, state, scenario, userType, startLevel) {
     // احتياط: إن لم يُطلق المتصفح pointerlockchange (مثل عدم وجود قفل أصلًا) اعرض النافذة يدويًا.
     if (!document.pointerLockElement) setTimeout(() => { if (!finished && !modalOpen) pauseForCursor() }, 50)
   }
-  const speedRange = $('speedRange')
-  if (speedRange) speedRange.oninput = () => { player.setSpeed(Number(speedRange.value)); $('speedVal').textContent = speedRange.value }
+  const onSpeedKey = (e) => {
+    if (userType !== 'motor' || finished || modalOpen) return
+    const map = {
+      Digit1: { v: 2, l: 'بطيء (1)' }, Numpad1: { v: 2, l: 'بطيء (1)' },
+      Digit2: { v: 3, l: 'متوسط (2)' }, Numpad2: { v: 3, l: 'متوسط (2)' },
+      Digit3: { v: 4.5, l: 'سريع (3)' }, Numpad3: { v: 4.5, l: 'سريع (3)' },
+      Digit4: { v: 6, l: 'أسرع (4)' }, Numpad4: { v: 6, l: 'أسرع (4)' },
+      Digit5: { v: 7.5, l: 'سريع جدا (5)' }, Numpad5: { v: 7.5, l: 'سريع جدا (5)' }
+    }
+    const cfg = map[e.code]
+    if (cfg) {
+      player.setSpeed(cfg.v)
+      const sv = $('speedVal')
+      if (sv) sv.textContent = cfg.l
+    }
+  }
+  if (userType === 'motor') {
+    window.addEventListener('keydown', onSpeedKey)
+  }
 
   function toast(msg) {
     const t = $('toast')
@@ -745,6 +762,7 @@ function initSimulation3D(el, state, scenario, userType, startLevel) {
     cancelAnimationFrame(raf)
     window.removeEventListener('resize', onResize)
     try { player.dispose() } catch {}
+    if (userType === 'motor') window.removeEventListener('keydown', onSpeedKey)
     // إنهاء يدوي/تنقل: إيقاف الإنذار + النداء + تنظيف كل timers/listeners
     try { audio.dispose() } catch {}
     try { window.speechSynthesis?.cancel() } catch {}
