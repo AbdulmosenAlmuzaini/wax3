@@ -187,9 +187,9 @@ export function buildSchool(scene, scenario, userType) {
   })
 
   // تذييل السبورة بجانب بعض مع مسافة معقولة
-  ctxB.font = 'bold 36px Cairo, Arial'
+  ctxB.font = 'bold 28px Cairo, Arial'
   ctxB.fillStyle = '#a8e6cf'
-  const footerStr = "عنوان الدرس : كيف نتصرف بأمان أثناء الطوارئ؟         |         مطورة المشروع : ميان طارق القثامي         |         اسم المشروع : SafeSense VR"
+  const footerStr = "عنوان الدرس : كيف نتصرف بأمان أثناء الطوارئ؟      |      مطورة المشروع : ميان طارق القثامي      |      اسم المشروع : SafeSense VR"
   ctxB.fillText(footerStr, 1024, 440)
 
   const texB = new THREE.CanvasTexture(cBoard)
