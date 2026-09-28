@@ -84,7 +84,7 @@ export function getSessions() {
 }
 
 export async function getRemoteSessions() {
-  const adminPass = APP_CONFIG.admin.password
+  const adminPass = getAdminToken()
   try {
     const res = await fetch('/api/sessions', {
       headers: { 'Authorization': `Bearer ${adminPass}` }
@@ -155,13 +155,17 @@ function upsertStudentFromSession(session) {
 }
 
 // ---------- Admin demo session ----------
-export function setAdminLoggedIn(flag) {
-  if (flag) writeJSON(KEYS.adminSession, { loggedIn: true, at: new Date().toISOString() })
+export function setAdminLoggedIn(pass) {
+  if (pass) writeJSON(KEYS.adminSession, { loggedIn: true, token: pass, at: new Date().toISOString() })
   else localStorage.removeItem(KEYS.adminSession)
 }
 
 export function isAdminLoggedIn() {
   return !!readJSON(KEYS.adminSession, null)?.loggedIn
+}
+
+export function getAdminToken() {
+  return readJSON(KEYS.adminSession, null)?.token || APP_CONFIG.admin.password
 }
 
 // ---------- إحصاءات عامة للوحة المشرف ----------

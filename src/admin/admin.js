@@ -26,22 +26,49 @@ export function renderAdminLogin(el) {
       <a class="back" href="#/">→ عودة للرئيسية</a>
     </div>
   </div>`
-  el.querySelector('#admGo').onclick = () => {
+  el.querySelector('#admGo').onclick = async () => {
     const norm = (s) => String(s || '')
       .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
       .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
       .trim()
     const u = norm(el.querySelector('#admUser').value).toLowerCase()
     const p = norm(el.querySelector('#admPass').value)
-    if (u === APP_CONFIG.admin.username && p === APP_CONFIG.admin.password) {
-      setAdminLoggedIn(true)
-      if (location.hash === '#/admin') {
-        window.dispatchEvent(new Event('hashchange'))
+    
+    if (u !== APP_CONFIG.admin.username) {
+      el.querySelector('#admErr').textContent = 'اسم المستخدم غير صحيح'
+      return
+    }
+
+    const btn = el.querySelector('#admGo')
+    const originalText = btn.textContent
+    btn.textContent = 'جاري التحقق...'
+    btn.disabled = true
+
+    try {
+      const res = await fetch('/api/sessions', { headers: { 'Authorization': `Bearer ${p}` } })
+      if (res.ok) {
+        setAdminLoggedIn(p)
+        if (location.hash === '#/admin') window.dispatchEvent(new Event('hashchange'))
+        else location.hash = '#/admin'
+        return
+      } else if (res.status === 401) {
+        el.querySelector('#admErr').textContent = 'كلمة المرور غير صحيحة'
       } else {
-        location.hash = '#/admin'
+        el.querySelector('#admErr').textContent = 'حدث خطأ في الخادم'
       }
-    } else {
-      el.querySelector('#admErr').textContent = 'بيانات الدخول غير صحيحة'
+    } catch (e) {
+      // Offline fallback
+      if (p === APP_CONFIG.admin.password) {
+        setAdminLoggedIn(p)
+        if (location.hash === '#/admin') window.dispatchEvent(new Event('hashchange'))
+        else location.hash = '#/admin'
+        return
+      } else {
+        el.querySelector('#admErr').textContent = 'تعذر الاتصال بالخادم'
+      }
+    } finally {
+      btn.textContent = originalText
+      btn.disabled = false
     }
   }
 }
