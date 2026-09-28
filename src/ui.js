@@ -48,13 +48,9 @@ export function renderHome(el) {
           <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">اسم المشروع</h4>
           <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">SafeSense VR</p>
         </div>
-        <div style="text-align: right; flex: 1; min-width: 150px;">
+        <div style="text-align: left; flex: 1; min-width: 150px;">
           <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">مطورة المشروع</h4>
           <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">ميان طارق القثامي</p>
-        </div>
-        <div style="text-align: right; flex: 1; min-width: 250px;">
-          <h4 style="margin: 0 0 5px 0; color: #1976d2; font-size: 0.95rem;">عنوان الدرس</h4>
-          <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1rem;">كيف نتصرف بأمان أثناء الطوارئ؟</p>
         </div>
       </div>
 
