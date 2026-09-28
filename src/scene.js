@@ -155,19 +155,49 @@ export function buildSchool(scene, scenario, userType) {
   }
 
   // --- السبورة + مكتب المعلم ---
-  const isHearing = userType === 'hearing'
-  const boardContrast = userType === 'visual' ? 0x111111 : (isHearing ? 0x06402b : 0x2e4a3d)
-  const boardBg = box(4.4, 1.4, 0.12, boardContrast, 0, 1.9, 0.25)
+  const boardBg = box(4.4, 1.4, 0.12, 0x113322, 0, 1.9, 0.25)
   scene.add(boardBg)
+
+  const cBoard = document.createElement('canvas')
+  cBoard.width = 2048
+  cBoard.height = 512
+  const ctxB = cBoard.getContext('2d')
   
+  // خلفية السبورة خضراء لجميع المحاكات
+  ctxB.fillStyle = '#0a4d2e'
+  if (ctxB.roundRect) ctxB.roundRect(16, 16, 2016, 480, 32)
+  else ctxB.rect(16, 16, 2016, 480)
+  ctxB.fill()
+  
+  ctxB.fillStyle = '#ffffff' // كتابة بيضاء
+  ctxB.textAlign = 'center'
+  ctxB.textBaseline = 'middle'
+  ctxB.direction = 'rtl'
+
+  const isHearing = userType === 'hearing'
   const boardMsg = isHearing
     ? 'تنبيه للإخلاء: اتبع الشريط الأحمر أسفل الشاشة\nوالمسار الأخضر على الأرض نحو منطقة التجمع'
     : 'عند الإنذار: حافظ على هدوئك، اتبع الإرشادات، واتجه إلى منطقة التجمع\nإذا لم تتقدم خلال ٥ ثوانٍ، يهدأ صوت الإنذار وتظهر إرشادات إضافية'
-  const boardFontSize = isHearing ? 42 : 32
-  
-  const boardText = makeTextPlane(boardMsg, userType, '#ffffff', boardFontSize, isHearing ? '#06402b' : null)
+
+  ctxB.font = 'bold 58px Cairo, Arial'
+  const linesB = boardMsg.split('\n')
+  const startYB = 210 - ((linesB.length - 1) * 80) / 2
+  linesB.forEach((line, i) => {
+    ctxB.fillText(line, 1024, startYB + i * 80)
+  })
+
+  // تذييل السبورة بجانب بعض مع مسافة معقولة
+  ctxB.font = 'bold 36px Cairo, Arial'
+  ctxB.fillStyle = '#a8e6cf'
+  const footerStr = "عنوان الدرس : كيف نتصرف بأمان أثناء الطوارئ؟         |         مطورة المشروع : ميان طارق القثامي         |         اسم المشروع : SafeSense VR"
+  ctxB.fillText(footerStr, 1024, 440)
+
+  const texB = new THREE.CanvasTexture(cBoard)
+  const boardText = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.2, 1.05),
+    new THREE.MeshLambertMaterial({ map: texB, transparent: true, side: THREE.DoubleSide })
+  )
   boardText.position.set(0, 1.9, 0.32)
-  boardText.scale.set(1.0, 1.0, 1) // 4x1 base size
   scene.add(boardText)
   scene.add(box(2.2, 0.75, 0.9, 0x8a6a45, 0, 0.375, 1.6, { name: 'teacherDesk' }))
   scene.add(box(0.8, 0.5, 0.5, 0x5b4632, -3.5, 0.9, 1.2, { name: 'chairT' }))
